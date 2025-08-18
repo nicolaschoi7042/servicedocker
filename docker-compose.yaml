@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: docker-jenkins
+    container_name: jenkins
+    ports:
+      - "5000:8080"
+      - "50000:50000"
+    volumes:
+      - /data/jenkins:/var/jenkins_home
+    environment:
+      - JAVA_OPTS=-Duser.timezone=Asia/Seoul
+    restart: unless-stopped
+    networks:
+      - devops_bridge
+      - opengrok_docker_devops_bridge
+
+  opengrok:
+    image: opengrok/docker:latest
+    container_name: opengrok
+    ports:
+      - "8081:8080"
+    volumes:
+      - /data/opengrok/bin:/opengrok/bin
+      - /data/opengrok/src:/opengrok/src
+      - /data/opengrok/etc:/opengrok/etc
+      - /data/opengrok/data:/opengrok/data
+      - /.ssh:/root/.ssh
+    networks:
+      - opengrok_docker_devops_bridge
+
+  jenkins-dashboard:
+    image: jenkins-dashboard-jenkins-dashboard
+    container_name: dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - LDAP_GROUP_FILTER=(member=%s)
+      - LDAP_BIND_DN=cn=admin,dc=roboetech,dc=com
+      - NODE_ENV=production
+      - LDAP_USER_BASE=ou=users,dc=roboetech,dc=com
+      - LDAP_SERVER=ldap://172.30.1.97:389
+      - JENKINS_USERNAME=jenkins
+      - LDAP_BIND_PASSWORD=admin
+      - JENKINS_URL=https://jenkins.roboetech.com
+      - JWT_SECRET=jenkins-dashboard-secret-key-2025
+      - LDAP_GROUP_BASE=ou=groups,dc=roboetech,dc=com
+      - LDAP_USER_FILTER=(|(cn=%s)(uid=%s)(sAMAccountName=%s)(mail=%s))
+      - LDAP_USER_FULLNAME_ATTR=cn
+      - JENKINS_TEST_MODE=true
+      - LDAP_USER_EMAIL_ATTR=mail
+      - JENKINS_API_TOKEN=11bd4c076142d7348c4598e9af8f92bf42
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    networks:
+      - devops_bridge
+      - opengrok_docker_devops_bridge
+
+  nginx:
+    image: opengrok-nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /data/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /data/nginx/htpasswd:/etc/nginx/htpasswd:ro
+      - /data/nginx/sslcert:/etc/nginx/sslcert:ro
+    networks:
+      - opengrok_docker_devops_bridge
+    depends_on:
+      - jenkins
+      - opengrok
+      - jenkins-dashboard
+
+
+  opengrok-ldap-auth:
+    image: opengrok-ldap-auth
+    container_name: opengrok-ldap-auth
+    ports:
+      - "8000:8000"
+    environment:
+      - LDAP_SERVER=ldap://172.30.1.97:389
+      - LDAP_USER_BASE=ou=users,dc=roboetech,dc=com
+      - LDAP_BIND_DN=cn=admin,dc=roboetech,dc=com
+      - LDAP_BIND_PASSWORD=admin
+    networks:
+      - devops_bridge
+      - opengrok_docker_devops_bridge
+
+networks:
+  devops_bridge:
+    name: docker_devops_bridge
+    external: true
+  opengrok_docker_devops_bridge:
+    name: opengrok_docker_devops_bridge
+    external: true
