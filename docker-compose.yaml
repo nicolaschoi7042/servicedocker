@@ -76,16 +76,18 @@ services:
       - jenkins-dashboard
 
 
-  # 외부 LDAP 서버(172.30.1.97) 사용 - 포트 노출 없이 내부 서비스만
+  # Enhanced LDAP Authentication Service with Web Login
   opengrok-ldap-auth:
-    image: opengrok-ldap-auth
+    image: opengrok-ldap-auth:v2
     container_name: opengrok-ldap-auth
-    # 실제로는 포트 노출 안됨 - 내부 서비스 간 통신만
+    # 포트 노출 없음 - Nginx를 통한 접근만
     environment:
       - LDAP_SERVER=ldap://172.30.1.97:389
       - LDAP_USER_BASE=ou=users,dc=roboetech,dc=com
       - LDAP_BIND_DN=cn=admin,dc=roboetech,dc=com
       - LDAP_BIND_PASSWORD=admin
+      - JWT_SECRET=opengrok-jwt-secret-2025-roboetech
+    restart: unless-stopped
     networks:
       - devops_bridge
       - opengrok_docker_devops_bridge
