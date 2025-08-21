@@ -19,9 +19,12 @@ docker compose logs -f
 ## 📋 서비스 목록
 
 - **Jenkins**: CI/CD 파이프라인 (포트: 5000, 50000)
-- **OpenGrok**: 소스코드 검색 (포트: 8081)
+- **OpenGrok**: 소스코드 검색 (포트: 8081) 
+  - 웹 기반 로그인 시스템
+  - 12시간 세션 자동 관리
+  - 한국어 인터페이스 지원
 - **Jenkins Dashboard**: 작업 모니터링 (포트: 3000)
-- **OpenGrok LDAP Auth**: LDAP 인증 서비스 (포트: 8000)
+- **OpenGrok LDAP Auth**: LDAP 인증 서비스 → [opengrok/](opengrok/) 폴더 참조
 - **Nginx**: 리버스 프록시 및 SSL (포트: 80, 443, 8080)
 
 ## 📂 데이터 볼륨
@@ -48,6 +51,22 @@ docker compose logs -f
 ## 📖 자세한 문서
 
 상세한 분석 및 운영 가이드는 [claude.md](claude.md) 파일을 참조하세요.
+
+## 📁 프로젝트 구조
+
+```
+docker/
+├── docker-compose.yaml          # 메인 서비스 구성
+├── claude.md                    # 상세 분석 및 운영 가이드
+├── README.md                    # 이 파일
+├── .gitignore                   # Git 무시 파일
+└── opengrok/                    # OpenGrok LDAP 인증 시스템
+    ├── README.md                # OpenGrok 인증 서비스 가이드
+    ├── ldap-auth-service-v2.py  # 웹 기반 로그인 서비스
+    ├── ldap-auth-service.py     # 기본 LDAP 인증 서비스
+    ├── Dockerfile               # Docker 이미지 빌드
+    └── requirements.txt         # Python 의존성
+```
 
 ## 🤝 기여
 
