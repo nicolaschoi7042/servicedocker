@@ -27,8 +27,8 @@ LDAP_GROUP_BASE = os.getenv('LDAP_GROUP_BASE', 'ou=groups,dc=roboetech,dc=com')
 LDAP_BIND_DN = os.getenv('LDAP_BIND_DN', 'cn=admin,dc=roboetech,dc=com')
 LDAP_BIND_PASSWORD = os.getenv('LDAP_BIND_PASSWORD', 'admin')
 
-# Session configuration - 12 hours
-SESSION_TIMEOUT_HOURS = 12
+# Session configuration - 2 hours
+SESSION_TIMEOUT_HOURS = 2
 JWT_SECRET = os.getenv('JWT_SECRET', secrets.token_urlsafe(32))
 COOKIE_NAME = 'opengrok_session'
 
@@ -215,7 +215,7 @@ LOGIN_TEMPLATE = '''
         </form>
         
         <div class="footer">
-            <p>세션은 12시간 후 자동으로 만료됩니다.</p>
+            <p>세션은 2시간 후 자동으로 만료됩니다.</p>
         </div>
     </div>
 </body>
